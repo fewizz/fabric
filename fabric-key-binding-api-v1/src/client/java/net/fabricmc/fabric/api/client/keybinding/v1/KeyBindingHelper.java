@@ -47,6 +47,15 @@ public final class KeyBindingHelper {
 	}
 
 	/**
+	 * Creates and registers sticky keybinding.
+	 *
+	 * @return resulting keybinding
+	 */
+	public static KeyBinding registerStickyKeyBinding(String id, int code, String category, StickyKeybindingDefaultBehavior defaultBehavior) {
+		return KeyBindingRegistryImpl.registerStickyKeyBinding(id, code, category, defaultBehavior);
+	}
+
+	/**
 	 * Returns the configured KeyCode bound to the KeyBinding from the player's settings.
 	 *
 	 * @param keyBinding the keybinding

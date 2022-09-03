@@ -4,7 +4,9 @@
   "compatibilityLevel": "JAVA_16",
   "client": [
     "KeyBindingAccessor",
-    "GameOptionsMixin"
+    "GameOptionsMixin",
+    "CyclingButtonWidgetAccessor",
+    "ControlsOptionsScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

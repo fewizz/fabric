@@ -16,6 +16,7 @@
 
 package net.fabricmc.fabric.impl.client.keybinding;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,11 +25,15 @@ import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.option.SimpleOption;
+import net.minecraft.client.option.StickyKeyBinding;
 
+import net.fabricmc.fabric.api.client.keybinding.v1.StickyKeybindingDefaultBehavior;
 import net.fabricmc.fabric.mixin.client.keybinding.KeyBindingAccessor;
 
 public final class KeyBindingRegistryImpl {
 	private static final List<KeyBinding> moddedKeyBindings = new ReferenceArrayList<>(); // ArrayList with identity based comparisons for contains/remove/indexOf etc., required for correctly handling duplicate keybinds
+	private static final List<SimpleOption<Boolean>> stickyKeyBindingOptions = new ArrayList<>();
 
 	private KeyBindingRegistryImpl() {
 	}
@@ -70,6 +75,17 @@ public final class KeyBindingRegistryImpl {
 		return moddedKeyBindings.add(binding) ? binding : null;
 	}
 
+	public static KeyBinding registerStickyKeyBinding(String id, int code, String category, StickyKeybindingDefaultBehavior defaultBehavior) {
+		SimpleOption.ValueTextGetter<Boolean> valueTextGetter = (optionText, toggle) -> (toggle ? StickyKeybindingDefaultBehavior.TOGGLE : StickyKeybindingDefaultBehavior.HOLD).text;
+		boolean defaultValue = defaultBehavior == StickyKeybindingDefaultBehavior.TOGGLE;
+		SimpleOption<Boolean> option = new SimpleOption<Boolean>(id, SimpleOption.emptyTooltip(), valueTextGetter, SimpleOption.BOOLEAN, defaultValue, value -> {
+		});
+		KeyBinding key = new StickyKeyBinding(id, code, category, option::getValue);
+		KeyBinding result = registerKeyBinding(key);
+		stickyKeyBindingOptions.add(option);
+		return result;
+	}
+
 	/**
 	 * Processes the keybindings array for our modded ones by first removing existing modded keybindings and readding them,
 	 * we can make sure that there are no duplicates this way.
@@ -79,5 +95,9 @@ public final class KeyBindingRegistryImpl {
 		newKeysAll.removeAll(moddedKeyBindings);
 		newKeysAll.addAll(moddedKeyBindings);
 		return newKeysAll.toArray(new KeyBinding[0]);
+	}
+
+	public static List<SimpleOption<Boolean>> getStickyKeyBindingOptions() {
+		return stickyKeyBindingOptions;
 	}
 }
